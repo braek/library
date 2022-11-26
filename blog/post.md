@@ -582,7 +582,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @DisplayName("Given a use case to add books to the library")
 class AddBookUseCaseTest {
 
-    private final BookRepository bookRepository = new MockBookRepository();
+    private final MockBookRepository bookRepository = new MockBookRepository();
     private final AddBookUseCase addBookUseCase = new AddBookUseCase(bookRepository);
 
     @Nested
@@ -653,6 +653,219 @@ public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPres
         var book = Book.createNew(command.isbn(), command.title(), command.author());
         bookRepository.save(book);
         presenter.added(book.takeSnapshot().id());
+    }
+}
+```
+
+## 6. Make the use case throw an event
+
+Next, we need to make sure that the use case throws an event whenever a book is added to the library.
+
+So we need to introduce the concept of an **event** and **event publisher** in the domain.
+
+```java
+package be.koder.library.domain;
+
+public interface Event {
+}
+```
+
+```java
+package be.koder.library.domain;
+
+public interface EventPublisher {
+    void publish(Event event);
+}
+```
+
+```java
+package be.koder.library.domain.book;
+
+import be.koder.library.domain.Event;
+import be.koder.library.vocabulary.book.BookId;
+
+public record BookAdded(BookId bookId) implements Event {
+}
+```
+
+In the **test doubles** module, we must also add an implementation of the **event publisher** as an in-memory implementation.
+
+```java
+package be.koder.library.test;
+
+import be.koder.library.domain.Event;
+import be.koder.library.domain.EventPublisher;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+public final class MockEventPublisher implements EventPublisher {
+
+    private final List<Event> events = new ArrayList<>();
+
+    @Override
+    public void publish(Event event) {
+        events.add(event);
+    }
+
+    public Optional<Event> getLastPublishedEvent() {
+        if (events.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(events.get(events.size() - 1));
+    }
+}
+```
+
+Next, we need to add the **event publisher** as dependency in the use case:
+
+```java
+package be.koder.library.usecase.book;
+
+import be.koder.library.api.book.AddBook;
+import be.koder.library.api.book.AddBookPresenter;
+import be.koder.library.domain.EventPublisher;
+import be.koder.library.domain.book.Book;
+import be.koder.library.domain.book.BookAdded;
+import be.koder.library.domain.book.BookRepository;
+import be.koder.library.usecase.UseCase;
+
+public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPresenter>, AddBook {
+
+    private final BookRepository bookRepository;
+    private final EventPublisher eventPublisher;
+
+    public AddBookUseCase(BookRepository bookRepository, EventPublisher eventPublisher) {
+        this.bookRepository = bookRepository;
+        this.eventPublisher = eventPublisher;
+    }
+
+    @Override
+    public void addBook(String isbn, String title, String author, AddBookPresenter presenter) {
+        execute(new AddBookCommand(isbn, title, author), presenter);
+    }
+
+    @Override
+    public void execute(AddBookCommand command, AddBookPresenter presenter) {
+        var book = Book.createNew(command.isbn(), command.title(), command.author());
+        bookRepository.save(book);
+        presenter.added(book.takeSnapshot().id());
+    }
+}
+```
+
+Next, we can add an extra test in the use case test:
+
+```java
+package be.koder.library.usecase.book;
+
+import be.koder.library.api.book.AddBookPresenter;
+import be.koder.library.domain.book.Book;
+import be.koder.library.domain.book.BookAdded;
+import be.koder.library.domain.book.BookSnapshot;
+import be.koder.library.test.MockBookRepository;
+import be.koder.library.test.MockEventPublisher;
+import be.koder.library.vocabulary.book.BookId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@DisplayName("Given a use case to add books to the library")
+class AddBookUseCaseTest {
+
+    private final MockBookRepository bookRepository = new MockBookRepository();
+    private final MockEventPublisher eventPublisher = new MockEventPublisher();
+    private final AddBookUseCase addBookUseCase = new AddBookUseCase(bookRepository, eventPublisher);
+
+    @Nested
+    @DisplayName("when a book is added to the library")
+    class TestWhenBookAdded implements AddBookPresenter {
+
+        private final String isbn = "0-7475-3269-9";
+        private final String title = "Harry Potter and the Philosopher's Stone";
+        private final String author = "J. K. Rowling";
+        private BookId bookId;
+        private BookSnapshot book;
+
+        @BeforeEach
+        void setup() {
+            addBookUseCase.execute(new AddBookCommand(isbn, title, author), this);
+            book = bookRepository.getById(bookId).map(Book::takeSnapshot).orElseThrow();
+        }
+
+        @Test
+        @DisplayName("it should throw an event")
+        void eventThrown() {
+            assertThat(eventPublisher.getLastPublishedEvent()).hasValueSatisfying(it -> {
+                assertThat(it).isInstanceOf(BookAdded.class);
+                var event = (BookAdded) it;
+                assertThat(event.bookId()).isEqualTo(bookId);
+            });
+        }
+
+        @Test
+        @DisplayName("it should be saved")
+        void bookSaved() {
+            assertThat(book.id()).isEqualTo(bookId);
+            assertThat(book.isbn()).isEqualTo(isbn);
+            assertThat(book.title()).isEqualTo(title);
+            assertThat(book.author()).isEqualTo(author);
+        }
+
+        @Test
+        @DisplayName("it should provide feedback")
+        void feedbackProvided() {
+            assertNotNull(bookId);
+        }
+
+        @Override
+        public void added(BookId id) {
+            bookId = id;
+        }
+    }
+}
+```
+
+This test will be orange however, so implement it in the use case to make it green:
+
+```java
+package be.koder.library.usecase.book;
+
+import be.koder.library.api.book.AddBook;
+import be.koder.library.api.book.AddBookPresenter;
+import be.koder.library.domain.EventPublisher;
+import be.koder.library.domain.book.Book;
+import be.koder.library.domain.book.BookAdded;
+import be.koder.library.domain.book.BookRepository;
+import be.koder.library.usecase.UseCase;
+
+public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPresenter>, AddBook {
+
+    private final BookRepository bookRepository;
+    private final EventPublisher eventPublisher;
+
+    public AddBookUseCase(BookRepository bookRepository, EventPublisher eventPublisher) {
+        this.bookRepository = bookRepository;
+        this.eventPublisher = eventPublisher;
+    }
+
+    @Override
+    public void addBook(String isbn, String title, String author, AddBookPresenter presenter) {
+        execute(new AddBookCommand(isbn, title, author), presenter);
+    }
+
+    @Override
+    public void execute(AddBookCommand command, AddBookPresenter presenter) {
+        var book = Book.createNew(command.isbn(), command.title(), command.author());
+        bookRepository.save(book);
+        final var snapshot = book.takeSnapshot();
+        eventPublisher.publish(new BookAdded(snapshot.id()));
+        presenter.added(snapshot.id());
     }
 }
 ```

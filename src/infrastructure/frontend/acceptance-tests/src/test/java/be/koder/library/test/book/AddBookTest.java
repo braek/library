@@ -3,6 +3,7 @@ package be.koder.library.test.book;
 import be.koder.library.api.book.AddBook;
 import be.koder.library.api.book.AddBookPresenter;
 import be.koder.library.test.MockBookRepository;
+import be.koder.library.test.MockEventPublisher;
 import be.koder.library.usecase.book.AddBookUseCase;
 import be.koder.library.vocabulary.book.BookId;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @DisplayName("Given an API to add books to the library")
 public class AddBookTest {
 
-    private final AddBook addBook = new AddBookUseCase(new MockBookRepository());
+    private final AddBook addBook = new AddBookUseCase(new MockBookRepository(), new MockEventPublisher());
 
     @Nested
     @DisplayName("when a book is added to the library")

@@ -2,9 +2,10 @@ package be.koder.library.usecase.book;
 
 import be.koder.library.api.book.AddBookPresenter;
 import be.koder.library.domain.book.Book;
-import be.koder.library.domain.book.BookRepository;
+import be.koder.library.domain.book.BookAdded;
 import be.koder.library.domain.book.BookSnapshot;
 import be.koder.library.test.MockBookRepository;
+import be.koder.library.test.MockEventPublisher;
 import be.koder.library.vocabulary.book.BookId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,8 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @DisplayName("Given a use case to add books to the library")
 class AddBookUseCaseTest {
 
-    private final BookRepository bookRepository = new MockBookRepository();
-    private final AddBookUseCase addBookUseCase = new AddBookUseCase(bookRepository);
+    private final MockBookRepository bookRepository = new MockBookRepository();
+    private final MockEventPublisher eventPublisher = new MockEventPublisher();
+    private final AddBookUseCase addBookUseCase = new AddBookUseCase(bookRepository, eventPublisher);
 
     @Nested
     @DisplayName("when a book is added to the library")
@@ -34,6 +36,16 @@ class AddBookUseCaseTest {
         void setup() {
             addBookUseCase.execute(new AddBookCommand(isbn, title, author), this);
             book = bookRepository.getById(bookId).map(Book::takeSnapshot).orElseThrow();
+        }
+
+        @Test
+        @DisplayName("it should throw an event")
+        void eventThrown() {
+            assertThat(eventPublisher.getLastPublishedEvent()).hasValueSatisfying(it -> {
+                assertThat(it).isInstanceOf(BookAdded.class);
+                var event = (BookAdded) it;
+                assertThat(event.bookId()).isEqualTo(bookId);
+            });
         }
 
         @Test
