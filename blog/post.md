@@ -340,8 +340,8 @@ public class AddBookTest {
         }
 
         @Override
-        public void added(BookId id) {
-            bookId = id;
+        public void added(BookId bookId) {
+            this.bookId = bookId;
         }
     }
 }
@@ -386,8 +386,8 @@ class AddBookUseCaseTest {
         }
 
         @Override
-        public void added(BookId id) {
-            bookId = id;
+        public void added(BookId bookId) {
+            this.bookId = bookId;
         }
     }
 }
@@ -553,8 +553,8 @@ public class AddBookTest {
         }
 
         @Override
-        public void added(BookId id) {
-            bookId = id;
+        public void added(BookId bookId) {
+            this.bookId = bookId;
         }
     }
 }
@@ -617,8 +617,8 @@ class AddBookUseCaseTest {
         }
 
         @Override
-        public void added(BookId id) {
-            bookId = id;
+        public void added(BookId bookId) {
+            this.bookId = bookId;
         }
     }
 }
@@ -824,8 +824,8 @@ class AddBookUseCaseTest {
         }
 
         @Override
-        public void added(BookId id) {
-            bookId = id;
+        public void added(BookId bookId) {
+            this.bookId = bookId;
         }
     }
 }
