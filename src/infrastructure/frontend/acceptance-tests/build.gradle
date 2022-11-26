@@ -1,0 +1,9 @@
+dependencies {
+    implementation project(':api')
+    implementation project(':vocabulary')
+
+    testImplementation project(':domain')
+    testImplementation project(':test-doubles')
+}
+
+description = 'acceptance-tests'

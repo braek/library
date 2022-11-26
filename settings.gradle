@@ -1,0 +1,22 @@
+rootProject.name = 'onion'
+
+include(':acceptance-tests')
+include(':api')
+include(':domain')
+include(':queries')
+include(':test-doubles')
+include(':use-cases')
+include(':vocabulary')
+
+// Application
+project(':api').projectDir = file('src/application/api')
+project(':domain').projectDir = file('src/application/domain')
+project(':use-cases').projectDir = file('src/application/use-cases')
+project(':queries').projectDir = file('src/application/queries')
+
+// Frontend
+project(':acceptance-tests').projectDir = file('src/infrastructure/frontend/acceptance-tests')
+
+// Misc
+project(':test-doubles').projectDir = file('src/test-doubles')
+project(':vocabulary').projectDir = file('src/vocabulary')
