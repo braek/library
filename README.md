@@ -1,3 +1,3 @@
-# Hexagonal Architecture Base Project
+# Library Project
 
-This is a base project to get started with the hexagonal architecture.
+Sample project to demonstrate domain-driven design and hexagonal architecture.
