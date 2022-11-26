@@ -2,7 +2,7 @@ package be.koder.library.domain.book;
 
 import be.koder.library.vocabulary.book.BookId;
 
-public class Book {
+public final class Book {
 
     private final BookId id;
     private final String isbn;
@@ -14,6 +14,10 @@ public class Book {
         this.isbn = isbn;
         this.title = title;
         this.author = author;
+    }
+
+    public static Book fromSnapshot(BookSnapshot snapshot) {
+        return new Book(snapshot.id(), snapshot.isbn(), snapshot.title(), snapshot.author());
     }
 
     public BookSnapshot takeSnapshot() {

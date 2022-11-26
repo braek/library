@@ -189,7 +189,7 @@ package be.koder.library.domain.book;
 
 import be.koder.library.vocabulary.book.BookId;
 
-public class Book {
+public final class Book {
 
     private final BookId id;
     private final String isbn;
@@ -221,7 +221,7 @@ package be.koder.library.vocabulary.book;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class BookId {
+public final final class BookId {
 
     private final UUID uuid;
 
@@ -316,7 +316,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Given an API to add books to the library")
 public class AddBookTest {
@@ -327,8 +326,7 @@ public class AddBookTest {
     @DisplayName("when a book is added to the library")
     class TestWhenBookAdded implements AddBookPresenter {
 
-        private boolean addedCalled;
-        private BookId addedBookId;
+        private BookId bookId;
 
         @BeforeEach
         void setup() {
@@ -338,14 +336,58 @@ public class AddBookTest {
         @Test
         @DisplayName("it should provide feedback")
         void feedbackProvided() {
-            assertTrue(addedCalled);
-            assertNotNull(addedBookId);
+            assertNotNull(bookId);
         }
 
         @Override
         public void added(BookId id) {
-            addedCalled = true;
-            addedBookId = id;
+            bookId = id;
+        }
+    }
+}
+```
+
+## 5. Saving the aggregate root and adding a use case test
+
+Next, we need to add a **use case test** for the ```AddBookUseCase``` to test the **internal kitchen** of the domain. At first sight, this resembles a lot of the acceptance test.
+
+```java
+package be.koder.library.usecase.book;
+
+import be.koder.library.api.book.AddBookPresenter;
+import be.koder.library.vocabulary.book.BookId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@DisplayName("Given a use case to add books to the library")
+class AddBookUseCaseTest {
+
+    private final AddBookUseCase addBookUseCase = new AddBookUseCase();
+
+    @Nested
+    @DisplayName("when a book is added to the library")
+    class TestWhenBookAdded implements AddBookPresenter {
+
+        private BookId bookId;
+
+        @BeforeEach
+        void setup() {
+            addBookUseCase.execute(new AddBookCommand("0-7475-3269-9", "Harry Potter and the Philosopher's Stone", "J. K. Rowling"), this);
+        }
+
+        @Test
+        @DisplayName("it should provide feedback")
+        void feedbackProvided() {
+            assertNotNull(bookId);
+        }
+
+        @Override
+        public void added(BookId id) {
+            bookId = id;
         }
     }
 }
@@ -375,5 +417,242 @@ import be.koder.library.domain.Repository;
 import be.koder.library.vocabulary.book.BookId;
 
 public interface BookRepository extends Repository<BookId, Book> {
+}
+```
+
+We can also add the dependency in the ```AddBookUseCase:```
+
+```java
+public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPresenter>, AddBook {
+
+    private final BookRepository bookRepository;
+
+    public AddBookUseCase(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    @Override
+    public void addBook(String isbn, String title, String author, AddBookPresenter presenter) {
+        execute(new AddBookCommand(isbn, title, author), presenter);
+    }
+
+    @Override
+    public void execute(AddBookCommand command, AddBookPresenter presenter) {
+        var book = Book.createNew(command.isbn(), command.title(), command.author());
+        presenter.added(book.takeSnapshot().id());
+    }
+}
+```
+
+For the tests, we need a mock implementation of the ```BookRepository``` that acts as an in-memory database:
+
+```java
+package be.koder.library.test;
+
+import be.koder.library.domain.book.Book;
+import be.koder.library.domain.book.BookRepository;
+import be.koder.library.domain.book.BookSnapshot;
+import be.koder.library.vocabulary.book.BookId;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+public final class MockBookRepository implements BookRepository {
+
+    private final Map<BookId, BookSnapshot> books = new HashMap<>();
+
+    @Override
+    public Optional<Book> getById(BookId bookId) {
+        if (books.containsKey(bookId)) {
+            return Optional.of(Book.fromSnapshot(books.get(bookId)));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public void save(Book book) {
+        var snapshot = book.takeSnapshot();
+        books.put(snapshot.id(), snapshot);
+    }
+}
+```
+
+We need a new method ```fromSnapshot``` on the ```Book``` aggregate, because now the thing with the snapshot also works in the other direction:
+
+```java
+package be.koder.library.domain.book;
+
+import be.koder.library.vocabulary.book.BookId;
+
+public final class Book {
+
+    private final BookId id;
+    private final String isbn;
+    private final String title;
+    private final String author;
+
+    private Book(BookId id, String isbn, String title, String author) {
+        this.id = id;
+        this.isbn = isbn;
+        this.title = title;
+        this.author = author;
+    }
+
+    public static Book fromSnapshot(BookSnapshot snapshot) {
+        return new Book(snapshot.id(), snapshot.isbn(), snapshot.title(), snapshot.author());
+    }
+
+    public BookSnapshot takeSnapshot() {
+        return new BookSnapshot(id, isbn, title, author);
+    }
+
+    public static Book createNew(String isbn, String title, String author) {
+        return new Book(BookId.createNew(), isbn, title, author);
+    }
+}
+```
+
+Next, add the dependency on the ```BookRepository``` in the acceptance test:
+
+```java
+package be.koder.library.test.book;
+
+import be.koder.library.api.book.AddBook;
+import be.koder.library.api.book.AddBookPresenter;
+import be.koder.library.test.MockBookRepository;
+import be.koder.library.usecase.book.AddBookUseCase;
+import be.koder.library.vocabulary.book.BookId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@DisplayName("Given an API to add books to the library")
+public class AddBookTest {
+
+    private final AddBook addBook = new AddBookUseCase(new MockBookRepository());
+
+    @Nested
+    @DisplayName("when a book is added to the library")
+    class TestWhenBookAdded implements AddBookPresenter {
+
+        private BookId bookId;
+
+        @BeforeEach
+        void setup() {
+            addBook.addBook("0-7475-3269-9", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
+        }
+
+        @Test
+        @DisplayName("it should provide feedback")
+        void feedbackProvided() {
+            assertNotNull(bookId);
+        }
+
+        @Override
+        public void added(BookId id) {
+            bookId = id;
+        }
+    }
+}
+```
+
+And also add the same dependency in the **use case test.** In the use case test, we can also now test the save functionality:
+
+```java
+package be.koder.library.usecase.book;
+
+import be.koder.library.api.book.AddBookPresenter;
+import be.koder.library.domain.book.Book;
+import be.koder.library.domain.book.BookRepository;
+import be.koder.library.domain.book.BookSnapshot;
+import be.koder.library.test.MockBookRepository;
+import be.koder.library.vocabulary.book.BookId;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@DisplayName("Given a use case to add books to the library")
+class AddBookUseCaseTest {
+
+    private final BookRepository bookRepository = new MockBookRepository();
+    private final AddBookUseCase addBookUseCase = new AddBookUseCase(bookRepository);
+
+    @Nested
+    @DisplayName("when a book is added to the library")
+    class TestWhenBookAdded implements AddBookPresenter {
+
+        private final String isbn = "0-7475-3269-9";
+        private final String title = "Harry Potter and the Philosopher's Stone";
+        private final String author = "J. K. Rowling";
+        private BookId bookId;
+        private BookSnapshot book;
+
+        @BeforeEach
+        void setup() {
+            addBookUseCase.execute(new AddBookCommand(isbn, title, author), this);
+            book = bookRepository.getById(bookId).map(Book::takeSnapshot).orElseThrow();
+        }
+
+        @Test
+        @DisplayName("it should be saved")
+        void bookSaved() {
+            assertThat(book.id()).isEqualTo(bookId);
+            assertThat(book.isbn()).isEqualTo(isbn);
+            assertThat(book.title()).isEqualTo(title);
+            assertThat(book.author()).isEqualTo(author);
+        }
+
+        @Test
+        @DisplayName("it should provide feedback")
+        void feedbackProvided() {
+            assertNotNull(bookId);
+        }
+
+        @Override
+        public void added(BookId id) {
+            bookId = id;
+        }
+    }
+}
+```
+
+This test will still be red, because the use case was not yet implemented. Now we can use the ```save``` method on the ```BookRepository``` in the use case to make the test green.
+
+```java
+package be.koder.library.usecase.book;
+
+import be.koder.library.api.book.AddBook;
+import be.koder.library.api.book.AddBookPresenter;
+import be.koder.library.domain.book.Book;
+import be.koder.library.domain.book.BookRepository;
+import be.koder.library.usecase.UseCase;
+
+public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPresenter>, AddBook {
+
+    private final BookRepository bookRepository;
+
+    public AddBookUseCase(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    @Override
+    public void addBook(String isbn, String title, String author, AddBookPresenter presenter) {
+        execute(new AddBookCommand(isbn, title, author), presenter);
+    }
+
+    @Override
+    public void execute(AddBookCommand command, AddBookPresenter presenter) {
+        var book = Book.createNew(command.isbn(), command.title(), command.author());
+        bookRepository.save(book);
+        presenter.added(book.takeSnapshot().id());
+    }
 }
 ```
