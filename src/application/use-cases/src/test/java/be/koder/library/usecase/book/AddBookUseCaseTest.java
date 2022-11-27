@@ -4,6 +4,7 @@ import be.koder.library.api.book.AddBookPresenter;
 import be.koder.library.domain.book.Book;
 import be.koder.library.domain.book.BookAdded;
 import be.koder.library.domain.book.BookSnapshot;
+import be.koder.library.test.BookObjectMother;
 import be.koder.library.test.MockBookRepository;
 import be.koder.library.test.MockEventPublisher;
 import be.koder.library.vocabulary.book.BookId;
@@ -26,16 +27,14 @@ class AddBookUseCaseTest {
     @DisplayName("when a book is added to the library")
     class TestWhenBookAdded implements AddBookPresenter {
 
-        private final String isbn = "0-7475-3269-9";
-        private final String title = "Harry Potter and the Philosopher's Stone";
-        private final String author = "J. K. Rowling";
+        private final BookSnapshot book = BookObjectMother.INSTANCE.harryPotterAndThePhilosophersStone;
         private BookId bookId;
-        private BookSnapshot book;
+        private BookSnapshot savedBook;
 
         @BeforeEach
         void setup() {
-            addBookUseCase.execute(new AddBookCommand(isbn, title, author), this);
-            book = bookRepository.getById(bookId).map(Book::takeSnapshot).orElseThrow();
+            addBookUseCase.execute(new AddBookCommand(book.isbn(), book.title(), book.author()), this);
+            savedBook = bookRepository.getById(bookId).map(Book::takeSnapshot).orElseThrow();
         }
 
         @Test
@@ -51,10 +50,10 @@ class AddBookUseCaseTest {
         @Test
         @DisplayName("it should be saved")
         void bookSaved() {
-            assertThat(book.id()).isEqualTo(bookId);
-            assertThat(book.isbn()).isEqualTo(isbn);
-            assertThat(book.title()).isEqualTo(title);
-            assertThat(book.author()).isEqualTo(author);
+            assertThat(savedBook.id()).isEqualTo(bookId);
+            assertThat(savedBook.isbn()).isEqualTo(book.isbn());
+            assertThat(savedBook.title()).isEqualTo(book.title());
+            assertThat(savedBook.author()).isEqualTo(book.author());
         }
 
         @Test

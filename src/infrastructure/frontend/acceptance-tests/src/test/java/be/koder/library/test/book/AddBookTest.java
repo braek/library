@@ -2,6 +2,8 @@ package be.koder.library.test.book;
 
 import be.koder.library.api.book.AddBook;
 import be.koder.library.api.book.AddBookPresenter;
+import be.koder.library.domain.book.BookSnapshot;
+import be.koder.library.test.BookObjectMother;
 import be.koder.library.test.MockBookRepository;
 import be.koder.library.test.MockEventPublisher;
 import be.koder.library.usecase.book.AddBookUseCase;
@@ -22,11 +24,12 @@ public class AddBookTest {
     @DisplayName("when a book is added to the library")
     class TestWhenBookAdded implements AddBookPresenter {
 
+        private final BookSnapshot book = BookObjectMother.INSTANCE.harryPotterAndThePhilosophersStone;
         private BookId bookId;
 
         @BeforeEach
         void setup() {
-            addBook.addBook("0-7475-3269-9", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
+            addBook.addBook(book.isbn(), book.title(), book.author(), this);
         }
 
         @Test
