@@ -25,7 +25,7 @@ public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPres
 
     @Override
     public void execute(AddBookCommand command, AddBookPresenter presenter) {
-        var book = Book.createNew(command.isbn(), command.title(), command.author());
+        final var book = Book.createNew(command.isbn(), command.title(), command.author());
         bookRepository.save(book);
         final var snapshot = book.takeSnapshot();
         eventPublisher.publish(new BookAdded(snapshot.id()));
