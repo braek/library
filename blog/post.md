@@ -593,21 +593,21 @@ class AddBookUseCaseTest {
         private final String title = "Harry Potter and the Philosopher's Stone";
         private final String author = "J. K. Rowling";
         private BookId bookId;
-        private BookSnapshot book;
+        private BookSnapshot savedBook;
 
         @BeforeEach
         void setup() {
             addBookUseCase.execute(new AddBookCommand(isbn, title, author), this);
-            book = bookRepository.getById(bookId).map(Book::takeSnapshot).orElseThrow();
+            savedBook = bookRepository.getById(bookId).map(Book::takeSnapshot).orElseThrow();
         }
 
         @Test
         @DisplayName("it should be saved")
         void bookSaved() {
-            assertThat(book.id()).isEqualTo(bookId);
-            assertThat(book.isbn()).isEqualTo(isbn);
-            assertThat(book.title()).isEqualTo(title);
-            assertThat(book.author()).isEqualTo(author);
+            assertThat(savedBook.id()).isEqualTo(bookId);
+            assertThat(savedBook.isbn()).isEqualTo(isbn);
+            assertThat(savedBook.title()).isEqualTo(title);
+            assertThat(savedBook.author()).isEqualTo(author);
         }
 
         @Test
@@ -790,12 +790,12 @@ class AddBookUseCaseTest {
         private final String title = "Harry Potter and the Philosopher's Stone";
         private final String author = "J. K. Rowling";
         private BookId bookId;
-        private BookSnapshot book;
+        private BookSnapshot savedBook;
 
         @BeforeEach
         void setup() {
             addBookUseCase.execute(new AddBookCommand(isbn, title, author), this);
-            book = bookRepository.getById(bookId).map(Book::takeSnapshot).orElseThrow();
+            savedBook = bookRepository.getById(bookId).map(Book::takeSnapshot).orElseThrow();
         }
 
         @Test
@@ -811,10 +811,10 @@ class AddBookUseCaseTest {
         @Test
         @DisplayName("it should be saved")
         void bookSaved() {
-            assertThat(book.id()).isEqualTo(bookId);
-            assertThat(book.isbn()).isEqualTo(isbn);
-            assertThat(book.title()).isEqualTo(title);
-            assertThat(book.author()).isEqualTo(author);
+            assertThat(savedBook.id()).isEqualTo(bookId);
+            assertThat(savedBook.isbn()).isEqualTo(isbn);
+            assertThat(savedBook.title()).isEqualTo(title);
+            assertThat(savedBook.author()).isEqualTo(author);
         }
 
         @Test
