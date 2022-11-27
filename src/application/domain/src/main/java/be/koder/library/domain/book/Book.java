@@ -20,11 +20,11 @@ public final class Book {
         return new Book(snapshot.id(), snapshot.isbn(), snapshot.title(), snapshot.author());
     }
 
-    public BookSnapshot takeSnapshot() {
-        return new BookSnapshot(id, isbn, title, author);
-    }
-
     public static Book createNew(String isbn, String title, String author) {
         return new Book(BookId.createNew(), isbn, title, author);
+    }
+
+    public BookSnapshot takeSnapshot() {
+        return new BookSnapshot(id, isbn, title, author);
     }
 }
