@@ -14,7 +14,7 @@ public final class Isbn {
         final String sanitized = ofNullable(str)
                 .map(String::trim)
                 .orElse(null);
-        if (isNull(sanitized) || !Pattern.compile("^\\d{10}$").matcher(sanitized).matches()) {
+        if (isNull(sanitized) || !Pattern.compile("^\\d{10}|\\d{13}$").matcher(sanitized).matches()) {
             throw new InvalidIsbnException(str);
         }
         this.value = sanitized;
