@@ -9,7 +9,7 @@ public enum BookObjectMother {
 
     public final BookSnapshot harryPotterAndThePhilosophersStone = new BookSnapshot(
             BookId.createNew(),
-            "0-7475-3269-9",
+            "0747532699",
             "Harry Potter and the Philosopher's Stone",
             "J. K. Rowling"
     );

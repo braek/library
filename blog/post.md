@@ -141,7 +141,7 @@ public class AddBookTest {
 
         @BeforeEach
         void setup() {
-            addBook.addBook("0-7475-3269-9", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
+            addBook.addBook("0747532699", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
         }
 
         @Test
@@ -330,7 +330,7 @@ public class AddBookTest {
 
         @BeforeEach
         void setup() {
-            addBook.addBook("0-7475-3269-9", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
+            addBook.addBook("0747532699", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
         }
 
         @Test
@@ -376,7 +376,7 @@ class AddBookUseCaseTest {
 
         @BeforeEach
         void setup() {
-            addBookUseCase.execute(new AddBookCommand("0-7475-3269-9", "Harry Potter and the Philosopher's Stone", "J. K. Rowling"), this);
+            addBookUseCase.execute(new AddBookCommand("0747532699", "Harry Potter and the Philosopher's Stone", "J. K. Rowling"), this);
         }
 
         @Test
@@ -543,7 +543,7 @@ public class AddBookTest {
 
         @BeforeEach
         void setup() {
-            addBook.addBook("0-7475-3269-9", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
+            addBook.addBook("0747532699", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
         }
 
         @Test
@@ -589,7 +589,7 @@ class AddBookUseCaseTest {
     @DisplayName("when a book is added to the library")
     class TestWhenBookAdded implements AddBookPresenter {
 
-        private final String isbn = "0-7475-3269-9";
+        private final String isbn = "0747532699";
         private final String title = "Harry Potter and the Philosopher's Stone";
         private final String author = "J. K. Rowling";
         private BookId bookId;
@@ -786,7 +786,7 @@ class AddBookUseCaseTest {
     @DisplayName("when a book is added to the library")
     class TestWhenBookAdded implements AddBookPresenter {
 
-        private final String isbn = "0-7475-3269-9";
+        private final String isbn = "0747532699";
         private final String title = "Harry Potter and the Philosopher's Stone";
         private final String author = "J. K. Rowling";
         private BookId bookId;
@@ -886,7 +886,7 @@ public enum BookObjectMother {
 
     public final BookSnapshot harryPotterAndThePhilosophersStone = new BookSnapshot(
             BookId.createNew(),
-            "0-7475-3269-9",
+            "0747532699",
             "Harry Potter and the Philosopher's Stone",
             "J. K. Rowling"
     );
