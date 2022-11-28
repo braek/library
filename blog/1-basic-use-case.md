@@ -225,7 +225,7 @@ public final class BookId {
 
     private final UUID value;
 
-    private BookId(UUID uuid) {
+    private BookId(final UUID uuid) {
         this.value = uuid;
     }
 
