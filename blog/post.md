@@ -221,12 +221,12 @@ package be.koder.library.vocabulary.book;
 import java.util.Objects;
 import java.util.UUID;
 
-public final final class BookId {
+public final class BookId {
 
-    private final UUID uuid;
+    private final UUID value;
 
     private BookId(UUID uuid) {
-        this.uuid = uuid;
+        this.value = uuid;
     }
 
     public static BookId createNew() {
@@ -238,17 +238,17 @@ public final final class BookId {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BookId bookId = (BookId) o;
-        return Objects.equals(uuid, bookId.uuid);
+        return Objects.equals(value, bookId.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid);
+        return Objects.hash(value);
     }
 
     @Override
     public String toString() {
-        return uuid.toString();
+        return value.toString();
     }
 }
 ```
