@@ -1,4 +1,4 @@
-# First use case in hexagonal architecture
+# Basic use case in hexagonal architecture
 
 ## 1. Define the API
 
