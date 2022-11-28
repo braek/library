@@ -19,7 +19,8 @@ class IsbnTest {
         @DisplayName("it should be created successfully")
         @ParameterizedTest
         @ValueSource(strings = {
-                "0123456789"
+                "0123456789",
+                "0123456789012"
         })
         void testValidIsbn(final String str) {
             final var isbn = Isbn.fromString(str);
@@ -39,7 +40,9 @@ class IsbnTest {
                 "batman@gothamcity.com",
                 "https://www.koder.be",
                 "123",
-                "123456789"
+                "012345678",
+                "01234567890",
+                "012345678901"
         })
         void exceptionThrown(final String str) {
             assertThrows(InvalidIsbnException.class, () -> Isbn.fromString(str));
