@@ -14,7 +14,6 @@ package be.koder.library.vocabulary.book;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 
 public final class Isbn {
@@ -24,8 +23,8 @@ public final class Isbn {
     private Isbn(final String str) {
         final String sanitized = ofNullable(str)
                 .map(String::trim)
-                .orElse(null);
-        if (isNull(sanitized) || !Pattern.compile("^\\d{10}|\\d{13}$").matcher(sanitized).matches()) {
+                .orElseThrow(() -> new NullPointerException("Cannot create ISBN from NULL"));
+        if (!Pattern.compile("^\\d{10}|\\d{13}$").matcher(sanitized).matches()) {
             throw new InvalidIsbnException(str);
         }
         this.value = sanitized;
@@ -106,7 +105,6 @@ class IsbnTest {
 
         @DisplayName("it should throw an exception")
         @ParameterizedTest
-        @NullSource
         @ValueSource(strings = {
                 "abc",
                 "batman@gothamcity.com",
@@ -118,6 +116,18 @@ class IsbnTest {
         })
         void exceptionThrown(final String str) {
             assertThrows(InvalidIsbnException.class, () -> Isbn.fromString(str));
+        }
+    }
+
+    @Nested
+    @DisplayName("when NULL string provided")
+    class TestWhenNullStringProvided {
+
+        @ParameterizedTest
+        @NullSource
+        @DisplayName("it should throw an exception")
+        void exceptionThrown(final String str) {
+            assertThrows(NullPointerException.class, () -> Isbn.fromString(str));
         }
     }
 }
