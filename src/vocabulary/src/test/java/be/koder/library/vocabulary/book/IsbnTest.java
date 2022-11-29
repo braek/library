@@ -34,7 +34,6 @@ class IsbnTest {
 
         @DisplayName("it should throw an exception")
         @ParameterizedTest
-        @NullSource
         @ValueSource(strings = {
                 "abc",
                 "batman@gothamcity.com",
@@ -46,6 +45,18 @@ class IsbnTest {
         })
         void exceptionThrown(final String str) {
             assertThrows(InvalidIsbnException.class, () -> Isbn.fromString(str));
+        }
+    }
+
+    @Nested
+    @DisplayName("when NULL string provided")
+    class TestWhenNullStringProvided {
+
+        @ParameterizedTest
+        @NullSource
+        @DisplayName("it should throw an exception")
+        void exceptionThrown(final String str) {
+            assertThrows(NullPointerException.class, () -> Isbn.fromString(str));
         }
     }
 }
