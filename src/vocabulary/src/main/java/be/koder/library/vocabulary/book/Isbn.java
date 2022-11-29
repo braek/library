@@ -3,7 +3,6 @@ package be.koder.library.vocabulary.book;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import static java.util.Objects.isNull;
 import static java.util.Optional.ofNullable;
 
 public final class Isbn {
@@ -13,8 +12,8 @@ public final class Isbn {
     private Isbn(final String str) {
         final String sanitized = ofNullable(str)
                 .map(String::trim)
-                .orElse(null);
-        if (isNull(sanitized) || !Pattern.compile("^\\d{10}|\\d{13}$").matcher(sanitized).matches()) {
+                .orElseThrow(() -> new NullPointerException("Cannot create ISBN from NULL"));
+        if (!Pattern.compile("^\\d{10}|\\d{13}$").matcher(sanitized).matches()) {
             throw new InvalidIsbnException(str);
         }
         this.value = sanitized;
