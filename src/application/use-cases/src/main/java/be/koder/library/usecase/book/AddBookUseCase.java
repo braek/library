@@ -7,7 +7,9 @@ import be.koder.library.domain.book.Book;
 import be.koder.library.domain.book.BookAdded;
 import be.koder.library.domain.book.BookRepository;
 import be.koder.library.usecase.UseCase;
+import be.koder.library.vocabulary.book.Author;
 import be.koder.library.vocabulary.book.Isbn;
+import be.koder.library.vocabulary.book.Title;
 
 public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPresenter>, AddBook {
 
@@ -20,7 +22,7 @@ public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPres
     }
 
     @Override
-    public void addBook(Isbn isbn, String title, String author, AddBookPresenter presenter) {
+    public void addBook(Isbn isbn, Title title, Author author, AddBookPresenter presenter) {
         execute(new AddBookCommand(isbn, title, author), presenter);
     }
 

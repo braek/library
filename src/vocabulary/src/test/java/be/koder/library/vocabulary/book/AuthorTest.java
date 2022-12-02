@@ -1,6 +1,6 @@
 package be.koder.library.vocabulary.book;
 
-import be.koder.library.vocabulary.book.exception.InvalidIsbnException;
+import be.koder.library.vocabulary.book.exception.InvalidAuthorException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,8 +10,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DisplayName("Given a class that represents book ISBNs")
-class IsbnTest {
+@DisplayName("Given a class that represents book authors")
+public class AuthorTest {
 
     @Nested
     @DisplayName("when valid string provided")
@@ -20,12 +20,12 @@ class IsbnTest {
         @DisplayName("it should be created successfully")
         @ParameterizedTest
         @ValueSource(strings = {
-                "0123456789",
-                "0123456789012"
+                "Jane Doe",
+                "John Doe"
         })
-        void testValidIsbn(final String str) {
-            final var isbn = Isbn.fromString(str);
-            assertThat(isbn.toString()).isEqualTo(str.trim());
+        void testValidAuthor(final String str) {
+            final var author = Author.fromString(str);
+            assertThat(author.toString()).isEqualTo(str.trim());
         }
     }
 
@@ -36,16 +36,11 @@ class IsbnTest {
         @DisplayName("it should throw an exception")
         @ParameterizedTest
         @ValueSource(strings = {
-                "abc",
-                "batman@gothamcity.com",
-                "https://www.koder.be",
-                "123",
-                "012345678",
-                "01234567890",
-                "012345678901"
+                "",
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis eleifend interdum congue."
         })
         void exceptionThrown(final String str) {
-            assertThrows(InvalidIsbnException.class, () -> Isbn.fromString(str));
+            assertThrows(InvalidAuthorException.class, () -> Author.fromString(str));
         }
     }
 
@@ -57,7 +52,7 @@ class IsbnTest {
         @NullSource
         @DisplayName("it should throw an exception")
         void exceptionThrown(final String str) {
-            assertThrows(NullPointerException.class, () -> Isbn.fromString(str));
+            assertThrows(NullPointerException.class, () -> Author.fromString(str));
         }
     }
 }

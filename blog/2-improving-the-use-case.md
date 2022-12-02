@@ -57,7 +57,7 @@ public final class Isbn {
 Also introducing a new kind of exception for invalid ISBNs:
 
 ```java
-package be.koder.library.vocabulary.book;
+package be.koder.library.vocabulary.book.exception;
 
 public final class InvalidIsbnException extends RuntimeException {
     public InvalidIsbnException(String str) {
@@ -71,6 +71,7 @@ We must also add **unit tests** for the ISBN type:
 ```java
 package be.koder.library.vocabulary.book;
 
+import be.koder.library.vocabulary.book.exception.InvalidIsbnException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -80,7 +81,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@DisplayName("Given a class that represents ISBNs")
+@DisplayName("Given a class that represents book ISBNs")
 class IsbnTest {
 
     @Nested
