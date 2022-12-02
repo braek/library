@@ -13,7 +13,7 @@ public final class Author {
     private static final int MAX_LENGTH = 50;
     private final String value;
 
-    private Author(String str) {
+    private Author(final String str) {
         final var sanitized = ofNullable(str)
                 .map(String::trim)
                 .orElseThrow(() -> new NullPointerException("Cannot create Author from NULL"));
