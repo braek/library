@@ -261,9 +261,9 @@ public enum BookObjectMother {
 
     public final BookSnapshot harryPotterAndThePhilosophersStone = new BookSnapshot(
             BookId.createNew(),
-            Isbn.fromString("0747532699"),
-            "Harry Potter and the Philosopher's Stone",
-            "J. K. Rowling"
+            Isbn.fromString("9780553213119"),
+            "Moby-Dick",
+            "Herman Melville"
     );
 }
 ```

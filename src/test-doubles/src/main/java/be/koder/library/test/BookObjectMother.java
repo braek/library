@@ -10,10 +10,17 @@ public enum BookObjectMother {
 
     INSTANCE;
 
-    public final BookSnapshot harryPotterAndThePhilosophersStone = new BookSnapshot(
+    public final BookSnapshot mobyDick = new BookSnapshot(
             BookId.createNew(),
-            Isbn.fromString("0747532699"),
-            Title.fromString("Harry Potter and the Philosopher's Stone"),
-            Author.fromString("J. K. Rowling")
+            Isbn.fromString("9780553213119"),
+            Title.fromString("Moby-Dick"),
+            Author.fromString("Herman Melville")
+    );
+
+    public final BookSnapshot theGreatGatsby = new BookSnapshot(
+            BookId.createNew(),
+            Isbn.fromString("9780241341469"),
+            Title.fromString("The Great Gatsby"),
+            Author.fromString("F. Scott Fitzgerald")
     );
 }

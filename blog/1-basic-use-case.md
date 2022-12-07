@@ -141,7 +141,7 @@ public class AddBookTest {
 
         @BeforeEach
         void setup() {
-            addBook.addBook("0747532699", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
+            addBook.addBook("9780553213119", "Moby-Dick", "Herman Melville", this);
         }
 
         @Test
@@ -330,7 +330,7 @@ public class AddBookTest {
 
         @BeforeEach
         void setup() {
-            addBook.addBook("0747532699", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
+            addBook.addBook("9780553213119", "Moby-Dick", "Herman Melville", this);
         }
 
         @Test
@@ -376,7 +376,7 @@ class AddBookUseCaseTest {
 
         @BeforeEach
         void setup() {
-            addBookUseCase.execute(new AddBookCommand("0747532699", "Harry Potter and the Philosopher's Stone", "J. K. Rowling"), this);
+            addBookUseCase.execute(new AddBookCommand("9780553213119", "Moby-Dick", "Herman Melville"), this);
         }
 
         @Test
@@ -543,7 +543,7 @@ public class AddBookTest {
 
         @BeforeEach
         void setup() {
-            addBook.addBook("0747532699", "Harry Potter and the Philosopher's Stone", "J. K. Rowling", this);
+            addBook.addBook("9780553213119", "Moby-Dick", "Herman Melville", this);
         }
 
         @Test
@@ -589,9 +589,9 @@ class AddBookUseCaseTest {
     @DisplayName("when a book is added to the library")
     class TestWhenBookAdded implements AddBookPresenter {
 
-        private final String isbn = "0747532699";
-        private final String title = "Harry Potter and the Philosopher's Stone";
-        private final String author = "J. K. Rowling";
+        private final String isbn = "9780553213119";
+        private final String title = "Moby-Dick";
+        private final String author = "Herman Melville";
         private BookId bookId;
         private BookSnapshot savedBook;
 
@@ -786,9 +786,9 @@ class AddBookUseCaseTest {
     @DisplayName("when a book is added to the library")
     class TestWhenBookAdded implements AddBookPresenter {
 
-        private final String isbn = "0747532699";
-        private final String title = "Harry Potter and the Philosopher's Stone";
-        private final String author = "J. K. Rowling";
+        private final String isbn = "9780553213119";
+        private final String title = "Moby-Dick";
+        private final String author = "Herman Melville";
         private BookId bookId;
         private BookSnapshot savedBook;
 
@@ -884,11 +884,11 @@ public enum BookObjectMother {
 
     INSTANCE;
 
-    public final BookSnapshot harryPotterAndThePhilosophersStone = new BookSnapshot(
+    public final BookSnapshot mobyDick = new BookSnapshot(
             BookId.createNew(),
-            "0747532699",
-            "Harry Potter and the Philosopher's Stone",
-            "J. K. Rowling"
+            Isbn.fromString("9780553213119"),
+            Title.fromString("Moby-Dick"),
+            Author.fromString("Herman Melville")
     );
 }
 ```
@@ -922,7 +922,7 @@ public class AddBookTest {
     @DisplayName("when a book is added to the library")
     class TestWhenBookAdded implements AddBookPresenter {
 
-        private final BookSnapshot book = BookObjectMother.INSTANCE.harryPotterAndThePhilosophersStone;
+        private final BookSnapshot book = BookObjectMother.INSTANCE.mobyDick;
         private BookId bookId;
 
         @BeforeEach
@@ -976,7 +976,7 @@ class AddBookUseCaseTest {
     @DisplayName("when a book is added to the library")
     class TestWhenBookAdded implements AddBookPresenter {
 
-        private final BookSnapshot book = BookObjectMother.INSTANCE.harryPotterAndThePhilosophersStone;
+        private final BookSnapshot book = BookObjectMother.INSTANCE.mobyDick;
         private BookId bookId;
         private BookSnapshot savedBook;
 

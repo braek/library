@@ -6,6 +6,7 @@ import be.koder.library.domain.EventPublisher;
 import be.koder.library.domain.book.Book;
 import be.koder.library.domain.book.BookAdded;
 import be.koder.library.domain.book.BookRepository;
+import be.koder.library.domain.book.IsbnService;
 import be.koder.library.usecase.UseCase;
 import be.koder.library.vocabulary.book.Author;
 import be.koder.library.vocabulary.book.Isbn;
@@ -14,10 +15,12 @@ import be.koder.library.vocabulary.book.Title;
 public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPresenter>, AddBook {
 
     private final BookRepository bookRepository;
+    private final IsbnService isbnService;
     private final EventPublisher eventPublisher;
 
-    public AddBookUseCase(BookRepository bookRepository, EventPublisher eventPublisher) {
+    public AddBookUseCase(BookRepository bookRepository, IsbnService isbnService, EventPublisher eventPublisher) {
         this.bookRepository = bookRepository;
+        this.isbnService = isbnService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -28,6 +31,10 @@ public final class AddBookUseCase implements UseCase<AddBookCommand, AddBookPres
 
     @Override
     public void execute(AddBookCommand command, AddBookPresenter presenter) {
+        if (isbnService.exists(command.isbn())) {
+            presenter.isbnAlreadyRegistered();
+            return;
+        }
         final var book = Book.createNew(command.isbn(), command.title(), command.author());
         bookRepository.save(book);
         final var bookId = book.takeSnapshot().id();
